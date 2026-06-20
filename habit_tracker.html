@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>습관 트래커</title>
+<style>
+  :root {
+    --bg: #7c3aed;
+    --card-bg: #ffffff;
+    --text: #000000;
+    --muted: #4b4b55;
+    --line: #000000;
+    --violet: #7c3aed;
+    --violet-dark: #5b21b6;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    min-height: 100%;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    padding: 48px 20px;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 600px) {
+    body {
+      padding: 24px 12px;
+    }
+  }
+
+  h1 {
+    display: inline-block;
+    background: var(--card-bg);
+    color: var(--text);
+    border: 4px solid var(--line);
+    padding: 10px 22px;
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: -0.3px;
+    margin: 0 0 28px;
+    box-shadow: 6px 6px 0 var(--line);
+    transform: rotate(-1deg);
+  }
+
+  .add-form {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .add-form input {
+    flex: 1;
+    padding: 14px 16px;
+    border: 3px solid var(--line);
+    border-radius: 0;
+    background: var(--card-bg);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    outline: none;
+    box-shadow: 4px 4px 0 var(--line);
+    transition: box-shadow 0.15s, transform 0.15s;
+  }
+
+  .add-form input::placeholder {
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .add-form input:focus {
+    box-shadow: 6px 6px 0 var(--violet-dark);
+    transform: translate(-2px, -2px);
+  }
+
+  .add-form button {
+    padding: 14px 24px;
+    border: 3px solid var(--line);
+    border-radius: 0;
+    background: var(--violet);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--line);
+    transition: background 0.15s, transform 0.1s, box-shadow 0.1s;
+  }
+
+  .add-form button:hover {
+    background: var(--violet-dark);
+  }
+
+  .add-form button:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 var(--line);
+  }
+
+  .habit-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  @media (max-width: 900px) {
+    .habit-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .habit-list {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+  }
+
+  .habit-item {
+    background: var(--card-bg);
+    border: 4px solid var(--line);
+    border-radius: 0;
+    padding: 18px 20px;
+    box-shadow: 8px 8px 0 var(--line);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .habit-item:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 12px 12px 0 var(--line);
+  }
+
+  .habit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .habit-name {
+    font-size: 16px;
+    font-weight: 800;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .delete-btn {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--line);
+    border-radius: 0;
+    background: var(--card-bg);
+    color: var(--text);
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .delete-btn:hover {
+    background: var(--text);
+    color: #fff;
+  }
+
+  .progress-section {
+    margin-bottom: 16px;
+  }
+
+  .progress-text {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .progress-track {
+    height: 12px;
+    border-radius: 0;
+    border: 2px solid var(--line);
+    background: var(--card-bg);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 0;
+    background: var(--violet);
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+  .day-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  .day-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .day-label {
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .day-dot {
+    width: 100%;
+    max-width: 44px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    border: 3px solid var(--line);
+    background: var(--card-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 3px 3px 0 var(--line);
+    transition: background 0.15s, transform 0.1s, box-shadow 0.1s;
+    padding: 0;
+  }
+
+  .day-dot:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--line);
+  }
+
+  .day-dot:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--line);
+  }
+
+  .day-dot.done {
+    background: var(--violet);
+  }
+
+  .day-dot .check {
+    width: 14px;
+    height: 14px;
+    opacity: 0;
+    transform: scale(0.3) rotate(-45deg);
+    transition: opacity 0.2s ease, transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .day-dot.done .check {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+
+  .day-dot.done .check path {
+    stroke: #fff;
+  }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 40px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>습관 트래커</h1>
+
+  <div class="add-form">
+    <input id="habitInput" type="text" placeholder="새 습관 추가" maxlength="40">
+    <button id="addBtn">추가</button>
+  </div>
+
+  <ul class="habit-list" id="habitList"></ul>
+</div>
+
+<script>
+  const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
+  const STORAGE_KEY = 'habitTrackerData';
+
+  const habitInput = document.getElementById('habitInput');
+  const addBtn = document.getElementById('addBtn');
+  const habitList = document.getElementById('habitList');
+  const habitElements = new Map();
+
+  function calcRate(habit) {
+    const completed = habit.days.filter(Boolean).length;
+    return Math.round((completed / 7) * 100);
+  }
+
+  function loadHabits() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveHabits(habits) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+  }
+
+  let habits = loadHabits();
+
+  function render() {
+    habitList.innerHTML = '';
+    habitElements.clear();
+
+    if (habits.length === 0) {
+      const empty = document.createElement('li');
+      empty.className = 'empty-state';
+      empty.textContent = '아직 추가한 습관이 없어요. 위에서 새 습관을 추가해보세요.';
+      habitList.appendChild(empty);
+      return;
+    }
+
+    habits.forEach((habit) => {
+      const item = document.createElement('li');
+      item.className = 'habit-item';
+
+      const header = document.createElement('div');
+      header.className = 'habit-header';
+
+      const name = document.createElement('span');
+      name.className = 'habit-name';
+      name.textContent = habit.name;
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.textContent = '×';
+      deleteBtn.setAttribute('aria-label', '습관 삭제');
+      deleteBtn.addEventListener('click', () => deleteHabit(habit.id));
+
+      header.appendChild(name);
+      header.appendChild(deleteBtn);
+
+      const rate = calcRate(habit);
+
+      const progressSection = document.createElement('div');
+      progressSection.className = 'progress-section';
+
+      const progressText = document.createElement('div');
+      progressText.className = 'progress-text';
+      progressText.textContent = `이번 주 달성률 ${rate}%`;
+
+      const progressTrack = document.createElement('div');
+      progressTrack.className = 'progress-track';
+
+      const progressFill = document.createElement('div');
+      progressFill.className = 'progress-fill';
+      progressFill.style.width = `${rate}%`;
+      progressTrack.appendChild(progressFill);
+
+      progressSection.appendChild(progressText);
+      progressSection.appendChild(progressTrack);
+
+      const dayRow = document.createElement('div');
+      dayRow.className = 'day-row';
+
+      const dots = [];
+
+      DAY_LABELS.forEach((label, dayIndex) => {
+        const col = document.createElement('div');
+        col.className = 'day-col';
+
+        const dayLabel = document.createElement('span');
+        dayLabel.className = 'day-label';
+        dayLabel.textContent = label;
+
+        const dot = document.createElement('button');
+        dot.className = 'day-dot' + (habit.days[dayIndex] ? ' done' : '');
+        dot.setAttribute('aria-label', `${habit.name} ${label}요일 완료 토글`);
+        dot.innerHTML = `<svg class="check" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        dot.addEventListener('click', () => toggleDay(habit.id, dayIndex));
+
+        dots.push(dot);
+        col.appendChild(dayLabel);
+        col.appendChild(dot);
+        dayRow.appendChild(col);
+      });
+
+      item.appendChild(header);
+      item.appendChild(progressSection);
+      item.appendChild(dayRow);
+      habitList.appendChild(item);
+
+      habitElements.set(habit.id, { dots, progressFill, progressText });
+    });
+  }
+
+  function updateHabitUI(habitId) {
+    const habit = habits.find((h) => h.id === habitId);
+    const refs = habitElements.get(habitId);
+    if (!habit || !refs) return;
+
+    const rate = calcRate(habit);
+    refs.progressText.textContent = `이번 주 달성률 ${rate}%`;
+    refs.progressFill.style.width = `${rate}%`;
+
+    refs.dots.forEach((dot, dayIndex) => {
+      dot.classList.toggle('done', habit.days[dayIndex]);
+    });
+  }
+
+  function addHabit(name) {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    habits.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+      name: trimmed,
+      days: [false, false, false, false, false, false, false],
+    });
+    saveHabits(habits);
+    render();
+  }
+
+  function deleteHabit(id) {
+    habits = habits.filter((h) => h.id !== id);
+    saveHabits(habits);
+    render();
+  }
+
+  function toggleDay(id, dayIndex) {
+    const habit = habits.find((h) => h.id === id);
+    if (!habit) return;
+    habit.days[dayIndex] = !habit.days[dayIndex];
+    saveHabits(habits);
+    updateHabitUI(id);
+  }
+
+  addBtn.addEventListener('click', () => {
+    addHabit(habitInput.value);
+    habitInput.value = '';
+    habitInput.focus();
+  });
+
+  habitInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      addHabit(habitInput.value);
+      habitInput.value = '';
+    }
+  });
+
+  render();
+</script>
+
+</body>
+</html>
